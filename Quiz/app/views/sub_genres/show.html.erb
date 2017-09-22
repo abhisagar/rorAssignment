@@ -1,0 +1,129 @@
+<p id="notice"><%= notice %></p>
+<% if user_signed_in? %>
+    <% user = User.find(current_user.id) %>
+<% end %>
+  <% genre = Genre.find_by(name: @sub_genre.genre_name) %>
+  <% vari = 1 %>
+  <% score = 0 %>
+<head>
+    <% if user_signed_in? %>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+    function getans(jsvari, score, total, id){
+        var arr = [];
+        score = parseInt(score);
+        $("input:checkbox[name="+ jsvari +"]:checked").each(function(){arr.push($(this).val());});
+        var str = arr.join('');
+        var flag={};
+        flag['value'] = 0;
+        flag['total'] = total;
+        $.ajax({
+            async: false,
+            url: 'http://localhost:3000/questions/'+ id +'.json',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data){
+                if(data.answer == str )
+                    flag['value']=1;
+            }
+        });
+        if (flag['value']==1)
+            score += 20;
+        $.ajax({
+            async: false,
+            url: '/states/newcreatefunction/',
+            type: 'GET',
+            dataType: 'json',
+            data: {score: score, user_email: '<%= user.email %>', genre_name: '<%= genre.name %>',sub_genre_name: '<%= @sub_genre.name %>',question: jsvari, correct: flag['value']},
+            success: function(){
+                if (jsvari != flag['total']) {
+                    window.location = 'http://localhost:3000/sub_genres/'+'<%= @sub_genre.id %>';
+                }
+                else {
+                    window.location = 'http://localhost:3000/';
+                }
+            }
+        });
+    };
+
+</script>
+<% end %>
+</head>
+
+<body>
+<p class="w3-container w3-green w3-center">
+        <b><strong>Genre name: </strong></b>
+        <%= @sub_genre.genre_name %>
+</p>
+<p class="w3-container w3-purple w3-center">
+  <strong>Sub Genre Name: </strong>
+  <%= @sub_genre.name %>
+</p>
+
+
+<% questions = Question.where(sub_genre_name: @sub_genre.name) %>
+<% if admin_signed_in? %>
+<table class="w3-table w3-bordered w3-striped">
+  <thead>
+    <tr>
+      <th class="w3-text-blue">Question</th>
+      <th><strong>Option1</strong></th>
+      <th><strong>Option2</strong></th>
+      <th><strong>Option3</strong></th>
+      <th><strong>Option4</strong></th>
+      <th><strong>Answer</strong></th>
+      <th><strong>Sub Genre Name</strong></th>
+
+    </tr>
+  </thead>
+
+  <tbody>
+    <% questions.each do |question| %>
+      <tr>
+        <td><%= question.question %></td>
+        <td><%= question.option1 %></td>
+        <td><%= question.option2 %></td>
+        <td><%= question.option3 %></td>
+        <td><%= question.option4 %></td>
+        <td><%= question.answer %></td>
+        <td><%= question.sub_genre_name %></td>
+
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<br />
+        <% genre = Genre.find_by(name: @sub_genre.genre_name) %>
+        <%= link_to 'Edit', edit_sub_genre_path(@sub_genre) %> |
+         <%= link_to 'New Question', new_question_path %>
+<% else %>
+        <% @states1 = State.where(user_email: user.email, sub_genre_name: @sub_genre.name, genre_name: genre.name) %>
+
+        <% if @states1.length == 0 %>
+                <% @questions = Question.where(sub_genre_name: @sub_genre.name) %>
+                <% question = @questions.first %>
+                <% vari = 1 %>
+                <% score=0 %>
+        <% else %>
+                <% vari = @states1.last.question + 1 %>
+                <% @questions = Question.where(sub_genre_name: @sub_genre.name) %>
+                <% question = @questions[vari-1] %>
+                <% score = @states1.last.score %>
+        <% end %>
+        <% if question.answer.length > 1 %>
+            <h2 class="w3-text-blue">Multiple Correct Question</h2>
+        <% else %>
+            <h2 class="w3-text-blue">Single Correct Question</h2>
+        <% end %>
+        <h3 class="w3-text-green w3-center">Question <%= vari %></h3>
+        <p><%= question.question %></p>
+        <p><%= check_box_tag vari , '1' %> <%= question.option1 %></p>
+        <p><%= check_box_tag vari , '2' %> <%= question.option2 %></p>
+        <p><%= check_box_tag vari , '3' %> <%= question.option3 %></p>
+        <p><%= check_box_tag vari , '4' %> <%= question.option4 %></p>
+<button id="but1" type="button" class="w3-btn w3-green" name="button" onclick="getans('<%= vari %>', '<%= score %>', '<%= @questions.length %>', '<%= question.id %>')">submit</button>
+<% end %>
+
+ | <%= link_to 'Back', genres_path %>
+</body>
+

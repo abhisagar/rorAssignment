@@ -1,0 +1,50 @@
+<p id="notice"><%= notice %></p>
+
+<h1 class="w3-container w3-purple w3-center">Leader Board</h1>
+
+<% if user_signed_in? %>
+<table class="w3-table w3-bordered w3-striped">
+  <tr>
+    <th>
+      Email
+    </th>
+    <th>
+      Score
+    </th>
+  </tr>
+  <% @arr1.each do |players| %>
+    <tr>
+        <td><%= players.user_email %></td>
+        <td><%= players.score %></td>
+    </tr>
+  <% end %>
+</table>
+
+<br />
+<br />
+<% else %>
+
+
+<table class="w3-table w3-bordered w3-striped">
+  <thead>
+    <tr>
+      <th>Email ID</th>
+      <th>Subgenre</th>
+      <th>Score</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @states_all.each do |state| %>
+      <tr>
+        <td><%= state.user_email %></td>
+        <td><%= state.sub_genre_name %></td>
+        <td><%= state.score %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<% end %>
+<br />
+<%= link_to "Back to Genre", genres_path %>

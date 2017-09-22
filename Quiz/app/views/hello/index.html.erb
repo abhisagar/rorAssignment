@@ -1,0 +1,36 @@
+<head>
+    <style>
+            p.em {
+                color: rgb(0,0,255);
+            }
+            p.start:hover {
+                background-color: blue;
+            }
+            p.log:hover {
+                background-color: yellowgreen;
+            }
+            p.yo:hover {
+                background-color: red;
+            }
+    </style>
+</head>
+
+<h1 class="w3-container w3-green w3-center">Welcome</h1>
+
+<% if user_signed_in? %>
+    <% user = current_user %>
+    <p class="em w3-right"><%= user.email %></p>
+        <p class = "start"><%= link_to "Start the quiz", { controller: "genres", action: "index"} %></p>
+        <p class = "yo"><%= link_to "Show LeaderBoard", { controller: "genres", action: "index"} %></p>
+        <p class="log"><%= link_to "Logout", destroy_user_session_path, :method => :delete %></p>
+<% elsif admin_signed_in? %>
+        <p class="start"><%= link_to "Select The Genre", { controller: "genres", action: "index" } %></p>
+        <p class="log"><%= link_to "Logout", destroy_admin_session_path, :method => :delete %></p>
+        <p class = "yo"><%= link_to "Show LeaderBoard", { controller: "states", action: "index"} %></p>
+        <p class="yo"><%= link_to "Access all questions", questions_path %></p>
+<% else %>
+    <li style="background-color :aqua"><%= link_to "User Sign up",  new_user_registration_path%></li>
+    <br />
+    <li style="background-color :cyan"><%= link_to "Admin Login",  new_admin_session_path%></li>
+<% end %>
+
